@@ -1,64 +1,19 @@
--- ============================================
--- PARAMÈTRES RESTAURANT (logo / photo de profil)
--- ============================================
-
--- Table paramètres (une seule ligne)
+-- PARAMÈTRES RESTAURANT Le Z
 CREATE TABLE IF NOT EXISTS public.parametres (
-  id            INTEGER PRIMARY KEY DEFAULT 1 CHECK (id = 1), -- force une seule ligne
-  nom_restaurant TEXT DEFAULT 'O Poeta',
-  logo_url      TEXT DEFAULT 'https://base44.app/api/apps/6a31a7682a8527ca694286bd/files/mp/public/6a31a7682a8527ca694286bd/a30f52440_opoeta_logo_fb.jpg',
-  adresse       TEXT DEFAULT '4, Avenue du Cercle, Quartier du Golf, Gombe, Kinshasa, RDC',
-  telephone     TEXT DEFAULT '+243 819 922 909',
-  whatsapp      TEXT DEFAULT '243819922909',
-  horaires      TEXT DEFAULT 'Tous les jours 12h30 - 23h00',
-  updated_at    TIMESTAMPTZ DEFAULT NOW()
+  id             INTEGER PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+  nom_restaurant TEXT DEFAULT 'Le Z',
+  logo_url       TEXT,
+  adresse        TEXT DEFAULT 'Immeuble Matrix, 8ème étage, 119 Boulevard du 30 Juin, Gombe, Kinshasa',
+  telephone      TEXT DEFAULT '+243 828 664 628',
+  whatsapp       TEXT DEFAULT '243828664628',
+  horaires       TEXT DEFAULT 'Mardi - Dimanche 12h00 - 22h30',
+  updated_at     TIMESTAMPTZ DEFAULT NOW()
 );
-
--- Ligne unique par défaut
-INSERT INTO public.parametres (id, nom_restaurant, logo_url, adresse, telephone, whatsapp, horaires)
-VALUES (1, 'O Poeta', 'https://base44.app/api/apps/6a31a7682a8527ca694286bd/files/mp/public/6a31a7682a8527ca694286bd/a30f52440_opoeta_logo_fb.jpg', '4, Avenue du Cercle, Quartier du Golf, Gombe, Kinshasa, RDC', '+243 819 922 909', '243819922909', 'Tous les jours 12h30 - 23h00')
+INSERT INTO public.parametres (id, nom_restaurant, adresse, telephone, whatsapp, horaires)
+VALUES (1, 'Le Z', 'Immeuble Matrix, 8ème étage, 119 Boulevard du 30 Juin, Gombe, Kinshasa', '+243 828 664 628', '243828664628', 'Mardi - Dimanche 12h00 - 22h30')
 ON CONFLICT (id) DO NOTHING;
-
--- Trigger updated_at
-CREATE TRIGGER trg_parametres_updated_at
-  BEFORE UPDATE ON public.parametres
-  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-
--- RLS
+CREATE TRIGGER trg_parametres_updated_at BEFORE UPDATE ON public.parametres FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 ALTER TABLE public.parametres ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "lecture_publique_parametres" ON public.parametres FOR SELECT USING (true);
-CREATE POLICY "admin_update_parametres" ON public.parametres FOR UPDATE
-  USING (auth.role() = 'service_role' OR auth.uid() IN (SELECT id FROM public.admin_profiles));
-
--- ============================================
--- STORAGE : bucket pour les images (logo + produits)
--- ============================================
-
-INSERT INTO storage.buckets (id, name, public)
-VALUES ('menu-images', 'menu-images', true)
-ON CONFLICT (id) DO NOTHING;
-
--- Lecture publique des images
-CREATE POLICY "lecture_publique_images"
-  ON storage.objects FOR SELECT
-  USING (bucket_id = 'menu-images');
-
--- Upload réservé aux admins connectés
-CREATE POLICY "upload_admin_images"
-  ON storage.objects FOR INSERT
-  WITH CHECK (
-    bucket_id = 'menu-images'
-    AND auth.uid() IN (SELECT id FROM public.admin_profiles)
-  );
-
--- Suppression/modif réservée aux admins
-CREATE POLICY "update_admin_images"
-  ON storage.objects FOR UPDATE
-  USING (bucket_id = 'menu-images' AND auth.uid() IN (SELECT id FROM public.admin_profiles));
-
-CREATE POLICY "delete_admin_images"
-  ON storage.objects FOR DELETE
-  USING (bucket_id = 'menu-images' AND auth.uid() IN (SELECT id FROM public.admin_profiles));
-
-SELECT 'Table parametres + bucket menu-images créés ✅ (O Poeta)' AS status;
+CREATE POLICY "param_select" ON public.parametres FOR SELECT USING (true);
+CREATE POLICY "param_update" ON public.parametres FOR UPDATE USING (auth.uid() IN (SELECT id FROM public.admin_profiles));
+SELECT 'Le Z — paramètres OK' AS status;

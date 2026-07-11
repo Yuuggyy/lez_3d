@@ -3,11 +3,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@400;600;700;800;900&display=swap');
 
 :root {
-  --creme: #FBF3E7;
-  --creme-soft: #FFFAF2;
-  --citron: #B5451F;
-  --citron-soft: #F0C9AE;
-  --lime: #6B7A3F;
+  --creme: #F5F5F8;
+  --creme-soft: #F5F5F8;
+  --citron: #1A1A2E;
+  --citron-soft: #F5F5F8;
+  --lime: #3A3A5C;
   --lime-dark: #4C5A2B;
   --olive: #3B2A20;
   --olive-soft: rgba(59,42,32,0.6);
