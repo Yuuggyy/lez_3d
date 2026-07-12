@@ -16,12 +16,13 @@ BEGIN
     EXECUTE 'DROP TABLE IF EXISTS public.' || quote_ident(obj) || ' CASCADE';
   END LOOP;
 
-  -- 2. Drop toutes les fonctions via oid (une par une, sans sous-requête)
+  -- 2. Drop toutes les fonctions
   FOR obj IN
-    SELECT oid::text FROM pg_proc
+    SELECT proname || '(' || pg_get_function_identity_arguments(oid) || ')' AS sig
+    FROM pg_proc
     WHERE pronamespace = 'public'::regnamespace
   LOOP
-    EXECUTE 'DROP FUNCTION IF EXISTS ' || obj::oid::regprocedure::text || ' CASCADE';
+    EXECUTE 'DROP FUNCTION IF EXISTS public.' || obj || ' CASCADE';
   END LOOP;
 
   -- 3. Drop tous les types ENUM
