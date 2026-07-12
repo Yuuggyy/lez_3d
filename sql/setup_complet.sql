@@ -15,17 +15,6 @@ BEGIN
   END LOOP;
 END $$;
 
--- Drop fonctions : via DROP ROUTINE + OID cast (1 ligne par OID, garanti)
-DO $$
-DECLARE fn_oid oid;
-BEGIN
-  FOR fn_oid IN
-    SELECT oid FROM pg_proc WHERE pronamespace = 'public'::regnamespace
-  LOOP
-    EXECUTE 'DROP ROUTINE IF EXISTS ' || fn_oid::regprocedure || ' CASCADE';
-  END LOOP;
-END $$;
-
 -- Drop types ENUM
 DO $$
 DECLARE t text;
