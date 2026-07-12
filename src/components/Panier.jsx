@@ -3,13 +3,13 @@ import { createCommande } from '../lib/supabase';
 
 // ─── Couleurs Lez ───────────────────────────────────────
 const C = {
-  primary:    '#1A3A2A',
-  primaryMid: '#2D5E42',
-  gold:       '#B8943F',
-  goldLight:  '#D4AF6A',
-  beige:      '#F5EDD8',
-  cream:      '#FBF8F0',
-  dark:       '#1A1A14',
+  primary:    '#1A1A1A',
+  primaryMid: '#2D2D2D',
+  gold:       '#C9A96E',
+  goldLight:  '#DFC090',
+  beige:      '#F5F0E8',
+  cream:      '#FDFAF5',
+  dark:       '#0A0A0A',
   darkSoft:   'rgba(0,0,0,0.52)',
   border:     'rgba(201,169,110,0.20)',
   danger:     '#C0392B',
