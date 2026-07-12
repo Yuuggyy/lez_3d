@@ -13,8 +13,14 @@ DO $$ DECLARE r RECORD; BEGIN
 END $$;
 
 DO $$ DECLARE r RECORD; BEGIN
-  FOR r IN (SELECT p.proname, pg_get_function_identity_arguments(p.oid) AS args
-            FROM pg_proc p JOIN pg_namespace n ON p.pronamespace = n.oid WHERE n.nspname = 'public') LOOP
+  FOR r IN (
+    SELECT p.oid,
+           p.proname,
+           pg_get_function_identity_arguments(p.oid) AS args
+    FROM pg_proc p
+    JOIN pg_namespace n ON p.pronamespace = n.oid
+    WHERE n.nspname = 'public'
+  ) LOOP
     EXECUTE 'DROP FUNCTION IF EXISTS public.' || quote_ident(r.proname) || '(' || r.args || ') CASCADE';
   END LOOP;
 END $$;
