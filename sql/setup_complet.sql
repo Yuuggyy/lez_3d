@@ -22,7 +22,7 @@ BEGIN
   FOR fn_oid IN
     SELECT oid FROM pg_proc WHERE pronamespace = 'public'::regnamespace
   LOOP
-    EXECUTE 'DROP ROUTINE IF EXISTS ' || fn_oid::regprocedure;
+    EXECUTE 'DROP ROUTINE IF EXISTS ' || fn_oid::regprocedure || ' CASCADE';
   END LOOP;
 END $$;
 
