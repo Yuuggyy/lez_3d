@@ -4,33 +4,34 @@
 -- ============================================
 
 -- ── 0. PURGE COMPLÈTE ──────────────────────────────────────────────
--- Désactiver les contraintes FK pendant la purge
 SET session_replication_role = replica;
 
+-- Drop tables
 DO $$
-DECLARE
-  obj text;
+DECLARE t text;
 BEGIN
-  -- 1. Drop toutes les tables
-  FOR obj IN SELECT tablename FROM pg_tables WHERE schemaname = 'public' LOOP
-    EXECUTE 'DROP TABLE IF EXISTS public.' || quote_ident(obj) || ' CASCADE';
+  FOR t IN SELECT tablename FROM pg_tables WHERE schemaname = 'public' LOOP
+    EXECUTE 'DROP TABLE IF EXISTS public.' || quote_ident(t) || ' CASCADE';
   END LOOP;
+END $$;
 
-  -- 2. Drop toutes les fonctions
-  FOR obj IN
-    SELECT proname || '(' || pg_get_function_identity_arguments(oid) || ')' AS sig
-    FROM pg_proc
-    WHERE pronamespace = 'public'::regnamespace
+-- Drop fonctions : via DROP ROUTINE + OID cast (1 ligne par OID, garanti)
+DO $$
+DECLARE fn_oid oid;
+BEGIN
+  FOR fn_oid IN
+    SELECT oid FROM pg_proc WHERE pronamespace = 'public'::regnamespace
   LOOP
-    EXECUTE 'DROP FUNCTION IF EXISTS public.' || obj || ' CASCADE';
+    EXECUTE 'DROP ROUTINE IF EXISTS ' || fn_oid::regprocedure;
   END LOOP;
+END $$;
 
-  -- 3. Drop tous les types ENUM
-  FOR obj IN
-    SELECT typname FROM pg_type
-    WHERE typnamespace = 'public'::regnamespace AND typtype = 'e'
-  LOOP
-    EXECUTE 'DROP TYPE IF EXISTS public.' || quote_ident(obj) || ' CASCADE';
+-- Drop types ENUM
+DO $$
+DECLARE t text;
+BEGIN
+  FOR t IN SELECT typname FROM pg_type WHERE typnamespace='public'::regnamespace AND typtype='e' LOOP
+    EXECUTE 'DROP TYPE IF EXISTS public.' || quote_ident(t) || ' CASCADE';
   END LOOP;
 END $$;
 
