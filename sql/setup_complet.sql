@@ -15,14 +15,6 @@ BEGIN
   END LOOP;
 END $$;
 
--- Drop types ENUM
-DO $$
-DECLARE t text;
-BEGIN
-  FOR t IN SELECT typname FROM pg_type WHERE typnamespace='public'::regnamespace AND typtype='e' LOOP
-    EXECUTE 'DROP TYPE IF EXISTS public.' || quote_ident(t) || ' CASCADE';
-  END LOOP;
-END $$;
 
 SET session_replication_role = DEFAULT;
 
