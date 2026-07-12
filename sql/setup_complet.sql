@@ -6,28 +6,49 @@
 -- ── 0. PURGE COMPLÈTE ──────────────────────────────────────────────
 SET session_replication_role = replica;
 
-DO $$ DECLARE r RECORD; BEGIN
-  FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') LOOP
-    EXECUTE 'DROP TABLE IF EXISTS public.' || quote_ident(r.tablename) || ' CASCADE';
+-- Supprimer toutes les tables
+DO $$
+DECLARE
+  tbl text;
+BEGIN
+  FOR tbl IN
+    SELECT tablename FROM pg_tables WHERE schemaname = 'public'
+  LOOP
+    EXECUTE format('DROP TABLE IF EXISTS public.%I CASCADE', tbl);
   END LOOP;
 END $$;
 
-DO $$ DECLARE r RECORD; BEGIN
-  FOR r IN (
-    SELECT p.oid,
-           p.proname,
-           pg_get_function_identity_arguments(p.oid) AS args
+-- Supprimer toutes les fonctions (par OID pour éviter P0003)
+DO $$
+DECLARE
+  fn_oid oid;
+  fn_sig text;
+BEGIN
+  FOR fn_oid IN
+    SELECT p.oid
     FROM pg_proc p
     JOIN pg_namespace n ON p.pronamespace = n.oid
     WHERE n.nspname = 'public'
-  ) LOOP
-    EXECUTE 'DROP FUNCTION IF EXISTS public.' || quote_ident(r.proname) || '(' || r.args || ') CASCADE';
+  LOOP
+    fn_sig := pg_get_function_identity_arguments(fn_oid);
+    EXECUTE format(
+      'DROP FUNCTION IF EXISTS public.%I(%s) CASCADE',
+      (SELECT proname FROM pg_proc WHERE oid = fn_oid),
+      fn_sig
+    );
   END LOOP;
 END $$;
 
-DO $$ DECLARE r RECORD; BEGIN
-  FOR r IN (SELECT typname FROM pg_type WHERE typnamespace = 'public'::regnamespace AND typtype = 'e') LOOP
-    EXECUTE 'DROP TYPE IF EXISTS public.' || quote_ident(r.typname) || ' CASCADE';
+-- Supprimer tous les types ENUM
+DO $$
+DECLARE
+  typ text;
+BEGIN
+  FOR typ IN
+    SELECT typname FROM pg_type
+    WHERE typnamespace = 'public'::regnamespace AND typtype = 'e'
+  LOOP
+    EXECUTE format('DROP TYPE IF EXISTS public.%I CASCADE', typ);
   END LOOP;
 END $$;
 
