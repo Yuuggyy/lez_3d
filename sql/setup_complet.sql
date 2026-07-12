@@ -4,56 +4,36 @@
 -- ============================================
 
 -- ── 0. PURGE COMPLÈTE ──────────────────────────────────────────────
+-- Désactiver les contraintes FK pendant la purge
 SET session_replication_role = replica;
 
--- Supprimer toutes les tables
 DO $$
 DECLARE
-  tbl text;
+  obj text;
 BEGIN
-  FOR tbl IN
-    SELECT tablename FROM pg_tables WHERE schemaname = 'public'
-  LOOP
-    EXECUTE format('DROP TABLE IF EXISTS public.%I CASCADE', tbl);
+  -- 1. Drop toutes les tables
+  FOR obj IN SELECT tablename FROM pg_tables WHERE schemaname = 'public' LOOP
+    EXECUTE 'DROP TABLE IF EXISTS public.' || quote_ident(obj) || ' CASCADE';
   END LOOP;
-END $$;
 
--- Supprimer toutes les fonctions (par OID pour éviter P0003)
-DO $$
-DECLARE
-  fn_oid oid;
-  fn_sig text;
-BEGIN
-  FOR fn_oid IN
-    SELECT p.oid
-    FROM pg_proc p
-    JOIN pg_namespace n ON p.pronamespace = n.oid
-    WHERE n.nspname = 'public'
+  -- 2. Drop toutes les fonctions via oid (une par une, sans sous-requête)
+  FOR obj IN
+    SELECT oid::text FROM pg_proc
+    WHERE pronamespace = 'public'::regnamespace
   LOOP
-    fn_sig := pg_get_function_identity_arguments(fn_oid);
-    EXECUTE format(
-      'DROP FUNCTION IF EXISTS public.%I(%s) CASCADE',
-      (SELECT proname FROM pg_proc WHERE oid = fn_oid),
-      fn_sig
-    );
+    EXECUTE 'DROP FUNCTION IF EXISTS ' || obj::oid::regprocedure::text || ' CASCADE';
   END LOOP;
-END $$;
 
--- Supprimer tous les types ENUM
-DO $$
-DECLARE
-  typ text;
-BEGIN
-  FOR typ IN
+  -- 3. Drop tous les types ENUM
+  FOR obj IN
     SELECT typname FROM pg_type
     WHERE typnamespace = 'public'::regnamespace AND typtype = 'e'
   LOOP
-    EXECUTE format('DROP TYPE IF EXISTS public.%I CASCADE', typ);
+    EXECUTE 'DROP TYPE IF EXISTS public.' || quote_ident(obj) || ' CASCADE';
   END LOOP;
 END $$;
 
 SET session_replication_role = DEFAULT;
-
 
 -- ── 1. EXTENSIONS ──────────────────────────────────────────────────
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
