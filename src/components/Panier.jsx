@@ -1,33 +1,39 @@
 import { useState } from 'react';
 import { createCommande } from '../lib/supabase';
 
-const T = {
-  fr: {
-    panier: 'Ma Commande', vide: 'Panier vide',
-    table: 'Numéro de table *', tablePh: 'Ex: 5, Bar…',
-    demandes: 'Demandes particulières', demandesPh: 'Allergies, sans sel…',
-    commander: 'Commander', total: 'Total',
-    confirmation: '✅ Commande envoyée !',
-    errTable: 'Indiquez votre numéro de table.',
-    errCommande: "Erreur: impossible d'envoyer la commande.",
-  },
-  en: {
-    panier: 'My Order', vide: 'Empty cart',
-    table: 'Table number *', tablePh: 'e.g. 5, Bar…',
-    demandes: 'Special requests', demandesPh: 'Allergies, no salt…',
-    commander: 'Place order', total: 'Total',
-    confirmation: '✅ Order sent!',
-    errTable: 'Please enter your table number.',
-    errCommande: 'Error: could not send order. Try again.',
-  },
+// ─── Couleurs Lez ───────────────────────────────────────
+const C = {
+  primary:    '#1A3A2A',
+  primaryMid: '#2D5E42',
+  gold:       '#B8943F',
+  goldLight:  '#D4AF6A',
+  beige:      '#F5EDD8',
+  cream:      '#FBF8F0',
+  dark:       '#1A1A14',
+  darkSoft:   'rgba(0,0,0,0.52)',
+  border:     'rgba(201,169,110,0.20)',
+  danger:     '#C0392B',
 };
 
-export default function Panier({ items, onUpdateQty, onRemove, onClose, onConfirm, lang, isMobile }) {
+const L = {
+  panier: 'Ma Commande',
+  vide: 'Votre commande est vide',
+  table: 'Numéro de table *',
+  tablePh: 'Ex: 5, Bar, Terrasse…',
+  demandes: 'Demandes particulières',
+  demandesPh: 'Allergies, sans sel, cuisson…',
+  commander: '✓ Passer la commande',
+  total: 'Total',
+  confirmation: '✅ Commande envoyée ! Nous préparons votre table.',
+  errTable: 'Veuillez indiquer votre numéro de table.',
+  errCommande: "Erreur : impossible d'envoyer la commande. Réessayez.",
+};
+
+export default function Panier({ items, onUpdateQty, onRemove, onClose, onConfirm, isMobile }) {
   const [table, setTable]       = useState('');
   const [demandes, setDemandes] = useState('');
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState('');
-  const L = T[lang] || T.fr;
 
   const total = items.reduce((s, i) => s + i.prix_unit * i.quantite, 0);
 
@@ -36,140 +42,161 @@ export default function Panier({ items, onUpdateQty, onRemove, onClose, onConfir
     setLoading(true); setError('');
     const { error: err } = await createCommande(table.trim(), items, demandes.trim());
     setLoading(false);
-    if (err) {
-      console.error('Erreur commande:', err);
-      setError(err.message || L.errCommande);
-      return;
-    }
+    if (err) { setError(L.errCommande); return; }
     onConfirm(L.confirmation);
   };
 
+  const inputStyle = {
+    width: '100%', padding: '12px 14px',
+    border: `1.5px solid ${C.border}`, borderRadius: 10,
+    fontSize: isMobile ? 16 : 14, fontFamily: 'inherit',
+    color: C.dark, background: '#fff', outline: 'none',
+  };
+
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div
-        onClick={e => e.stopPropagation()}
-        style={{
-          background: '#FFFFFF',
-          borderRadius: isMobile ? '16px 16px 0 0' : 12,
-          width: '100%',
-          maxWidth: isMobile ? '100%' : 480,
-          maxHeight: isMobile ? '90dvh' : '85vh',
-          overflowY: 'auto',
-          padding: isMobile ? '20px 18px 32px' : '28px 28px 28px',
-          boxShadow: '0 -8px 30px rgba(0,0,0,0.1)',
-          ...(isMobile ? {
-            position: 'fixed', bottom: 0, left: 0, right: 0,
-            animation: 'slideUp 0.3s cubic-bezier(0.4,0,0.2,1)',
-          } : {
-            animation: 'modalIn 0.3s cubic-bezier(0.4,0,0.2,1)',
-          }),
-        }}
-      >
-        <style>{`
-          @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-          @keyframes modalIn { from { opacity:0; transform: scale(0.95) translateY(10px); } to { opacity:1; transform: scale(1) translateY(0); } }
-        `}</style>
+    <div style={{
+      position: 'fixed', inset: 0,
+      background: 'rgba(26,26,26,0.50)', backdropFilter: 'blur(4px)',
+      display: 'flex', alignItems: isMobile ? 'flex-end' : 'center',
+      justifyContent: 'center', zIndex: 500,
+      animation: 'fadeIn 0.2s ease',
+    }} onClick={onClose}>
+      <div style={{
+        background: C.cream,
+        borderRadius: isMobile ? '20px 20px 0 0' : 20,
+        width: isMobile ? '100%' : 480,
+        maxHeight: isMobile ? '92dvh' : '85vh',
+        display: 'flex', flexDirection: 'column',
+        boxShadow: '0 -8px 40px rgba(26,26,26,0.20)',
+        animation: 'modalIn 0.3s cubic-bezier(0.4,0,0.2,1)',
+        overflow: 'hidden',
+      }} onClick={e => e.stopPropagation()}>
 
-        {isMobile && (
-          <div style={{ width: 36, height: 4, borderRadius: 2, background: '#E0E0E0', margin: '0 auto 16px' }} />
-        )}
-
-        {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        {/* Header panier */}
+        <div style={{
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          padding: '20px 24px 16px',
+          background: C.primary,
+          flexShrink: 0,
+        }}>
           <h2 style={{
-            fontFamily: "'Playfair Display', Georgia, serif",
-            fontSize: isMobile ? 20 : 24, color: '#1A1A1A', margin: 0,
-          }}>{L.panier}</h2>
+            fontFamily: "'Cormorant Garamond', Georgia, serif",
+            fontSize: 22, fontWeight: 700, color: C.beige, margin: 0,
+          }}>🛒 {L.panier}</h2>
           <button onClick={onClose} style={{
-            background: 'none', border: 'none', color: '#999',
-            fontSize: 24, cursor: 'pointer', touchAction: 'manipulation',
+            background: 'rgba(255,255,255,0.10)', border: 'none', cursor: 'pointer',
+            color: C.gold, fontSize: 20, borderRadius: 8, width: 36, height: 36,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>✕</button>
         </div>
 
-        {items.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px 0', color: '#999' }}>
-            <div style={{ fontSize: 40, marginBottom: 10 }}>🛒</div>
-            <p style={{ fontSize: 14 }}>{L.vide}</p>
-          </div>
-        ) : (
-          <>
-            {/* Items */}
-            <div style={{ marginBottom: 16 }}>
+        {/* Contenu scrollable */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '0 24px' }}>
+
+          {/* Articles */}
+          {items.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '48px 0', color: C.darkSoft }}>
+              <div style={{ fontSize: 36, marginBottom: 10 }}>🍽️</div>
+              <p style={{ fontSize: 15 }}>{L.vide}</p>
+            </div>
+          ) : (
+            <div style={{ paddingTop: 16 }}>
               {items.map((item, idx) => (
                 <div key={idx} style={{
                   display: 'flex', alignItems: 'center', gap: 12,
-                  padding: '12px 0',
-                  borderBottom: '1px solid #F0F0F0',
+                  padding: '12px 0', borderBottom: `1px solid rgba(201,169,110,0.12)`,
                 }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: isMobile ? 14 : 15, fontWeight: 600, color: '#1A1A1A', marginBottom: 2,
-                      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.nom}</p>
-                    <p style={{ fontSize: 13, color: '#999' }}>{Number(item.prix_unit).toFixed(2)} $</p>
+                    <p style={{ fontWeight: 600, color: C.dark, fontSize: 14, margin: 0 }}>{item.nom}</p>
+                    <p style={{ color: C.gold, fontSize: 13, fontWeight: 700, margin: '2px 0 0' }}>
+                      {(item.prix_unit * item.quantite).toFixed(2)} $
+                    </p>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
                     <button onClick={() => onUpdateQty(idx, -1)} style={{
-                      width: isMobile ? 30 : 28, height: isMobile ? 30 : 28, borderRadius: 8,
-                      border: '1px solid #E0E0E0', background: '#FFFFFF',
-                      color: '#1A1A1A', cursor: 'pointer', fontSize: 16, touchAction: 'manipulation',
+                      width: 28, height: 28, borderRadius: '50%', border: `1px solid ${C.border}`,
+                      background: 'transparent', cursor: 'pointer', fontSize: 15, color: C.darkSoft,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>−</button>
-                    <span style={{ fontSize: 14, fontWeight: 600, minWidth: 18, textAlign: 'center', color: '#1A1A1A' }}>{item.quantite}</span>
+                    <span style={{ fontWeight: 700, color: C.dark, minWidth: 18, textAlign: 'center', fontSize: 15 }}>
+                      {item.quantite}
+                    </span>
                     <button onClick={() => onUpdateQty(idx, 1)} style={{
-                      width: isMobile ? 30 : 28, height: isMobile ? 30 : 28, borderRadius: 8,
-                      border: 'none', background: '#1A1A1A', color: '#FFFFFF',
-                      cursor: 'pointer', fontSize: 16, touchAction: 'manipulation',
+                      width: 28, height: 28, borderRadius: '50%', border: 'none',
+                      background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`,
+                      cursor: 'pointer', fontSize: 15, color: '#fff',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>+</button>
                     <button onClick={() => onRemove(idx)} style={{
-                      background: 'none', border: 'none', color: '#CCC',
-                      cursor: 'pointer', fontSize: 16, padding: '0 2px', touchAction: 'manipulation',
-                    }}>🗑️</button>
+                      width: 28, height: 28, borderRadius: '50%', border: '1px solid rgba(192,57,43,0.2)',
+                      background: 'rgba(192,57,43,0.07)', cursor: 'pointer', fontSize: 13, color: C.danger,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>🗑</button>
                   </div>
-                  <p style={{ fontSize: 14, fontWeight: 700, color: '#1A1A1A', minWidth: 56, textAlign: 'right' }}>
-                    {(item.prix_unit * item.quantite).toFixed(2)} $
-                  </p>
                 </div>
               ))}
-            </div>
 
-            {/* Total */}
-            <div style={{
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              padding: '12px 0', marginBottom: 20,
-              borderTop: '2px solid #B5451F',
-            }}>
-              <span style={{ fontSize: 16, fontWeight: 600, color: '#1A1A1A' }}>{L.total}</span>
-              <span style={{ fontSize: 20, fontWeight: 800, color: '#1A1A1A' }}>{total.toFixed(2)} $</span>
+              {/* Total */}
+              <div style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                padding: '16px 0 20px', borderTop: `2px solid ${C.gold}`, marginTop: 4,
+              }}>
+                <span style={{ fontWeight: 700, color: C.dark, fontSize: 16 }}>{L.total}</span>
+                <span style={{ fontWeight: 800, color: C.gold, fontSize: 20 }}>{total.toFixed(2)} $</span>
+              </div>
             </div>
+          )}
 
-            {/* Form */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {/* Formulaire commande */}
+          {items.length > 0 && (
+            <div style={{ paddingBottom: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
-                <label className="label" style={{ color: '#666', fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>{L.table}</label>
-                <input className="input" value={table} onChange={e => setTable(e.target.value)}
+                <label style={{ fontSize: 11, fontWeight: 600, color: C.gold, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>{L.table}</label>
+                <input
+                  value={table}
+                  onChange={e => { setTable(e.target.value); setError(''); }}
                   placeholder={L.tablePh}
-                  style={{ fontSize: isMobile ? 16 : 15 }}
+                  style={inputStyle}
+                  autoFocus={!isMobile}
                 />
               </div>
               <div>
-                <label className="label" style={{ color: '#666', fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>{L.demandes}</label>
-                <textarea className="input" value={demandes} onChange={e => setDemandes(e.target.value)}
-                  placeholder={L.demandesPh} rows={2}
-                  style={{ resize: 'none', fontSize: isMobile ? 16 : 15 }} />
+                <label style={{ fontSize: 11, fontWeight: 600, color: C.gold, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>{L.demandes}</label>
+                <textarea
+                  value={demandes}
+                  onChange={e => setDemandes(e.target.value)}
+                  placeholder={L.demandesPh}
+                  rows={2}
+                  style={{ ...inputStyle, resize: 'none' }}
+                />
               </div>
-              {error && <p style={{ color: '#e63946', fontSize: 13 }}>⚠️ {error}</p>}
-              <button onClick={handleSubmit} disabled={loading}
-                style={{
-                  width: '100%', padding: isMobile ? 16 : 14,
-                  fontSize: isMobile ? 16 : 15, fontWeight: 700,
-                  background: '#B5451F', color: '#FFFFFF',
-                  border: 'none', borderRadius: 10, cursor: loading ? 'default' : 'pointer',
-                  touchAction: 'manipulation',
-                }}>
-                {loading ? '⏳ Envoi…' : `✅ ${L.commander}`}
-              </button>
+              {error && (
+                <div style={{ background: 'rgba(192,57,43,0.08)', border: '1px solid rgba(192,57,43,0.25)', borderRadius: 8, padding: '10px 14px', color: C.danger, fontSize: 13 }}>
+                  ⚠️ {error}
+                </div>
+              )}
             </div>
-          </>
+          )}
+        </div>
+
+        {/* Footer */}
+        {items.length > 0 && (
+          <div style={{
+            padding: '16px 24px 24px', flexShrink: 0,
+            borderTop: `1px solid ${C.border}`,
+            background: C.cream,
+          }}>
+            <button onClick={handleSubmit} disabled={loading} style={{
+              width: '100%', padding: isMobile ? 16 : 14,
+              borderRadius: 12, border: 'none', cursor: loading ? 'wait' : 'pointer',
+              background: `linear-gradient(135deg, ${C.primary}, ${C.primaryMid})`,
+              color: C.beige, fontSize: isMobile ? 16 : 15, fontWeight: 700,
+              boxShadow: `0 4px 20px rgba(26,26,26,0.25)`,
+              transition: 'opacity 0.2s',
+            }}>
+              {loading ? '⏳ Envoi en cours…' : L.commander}
+            </button>
+          </div>
         )}
       </div>
     </div>
