@@ -29,6 +29,10 @@ const C = {
   success:     '#1E8449',
   danger:      '#C0392B',
   warning:     '#D4891A',
+  goldDeep:    '#896B33', // high-contrast accent for text on white/cream backgrounds
+  successDark: '#1C7C44', // high-contrast green for text on light backgrounds
+  dangerDark:  '#C0392B', // high-contrast red for text on light backgrounds
+  warningDark: '#9D6613', // high-contrast amber for text on light backgrounds
 };
 
 // ─── Login ───────────────────────────────────────────────────
@@ -166,10 +170,10 @@ function CommandesTab() {
   const filtered = filtre === 'all' ? commandes : commandes.filter(c => c.statut === filtre);
 
   const badgeStyle = (statut) => ({
-    recue:     { bg: `rgba(201,169,110,0.15)`, color: C.gold },
+    recue:     { bg: `rgba(201,169,110,0.15)`, color: C.goldDeep },
     en_cours:  { bg: `rgba(45,94,66,0.20)`, color: C.primaryMid },
-    terminee:  { bg: 'rgba(30,132,73,0.12)', color: C.success },
-    annulee:   { bg: 'rgba(192,57,43,0.12)', color: C.danger },
+    terminee:  { bg: 'rgba(30,132,73,0.12)', color: C.successDark },
+    annulee:   { bg: 'rgba(192,57,43,0.12)', color: C.dangerDark },
   }[statut] || { bg: C.primarySoft, color: C.dark });
 
   return (
@@ -216,7 +220,7 @@ function CommandesTab() {
                       {STATUT_LABELS[cmd.statut]}
                     </span>
                   </div>
-                  <span style={{ fontSize: 18, fontWeight: 800, color: C.gold }}>{cmd.total?.toFixed(2)} $</span>
+                  <span style={{ fontSize: 18, fontWeight: 800, color: C.goldDeep }}>{cmd.total?.toFixed(2)} $</span>
                 </div>
                 {cmd.items && (
                   <div style={{ fontSize: 13, color: C.darkSoft, lineHeight: 1.6 }}>
@@ -225,7 +229,7 @@ function CommandesTab() {
                     ))}
                   </div>
                 )}
-                {cmd.notes && <p style={{ fontSize: 13, color: C.warning, fontStyle: 'italic' }}>💬 {cmd.notes}</p>}
+                {cmd.notes && <p style={{ fontSize: 13, color: C.warningDark, fontStyle: 'italic' }}>💬 {cmd.notes}</p>}
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   {STATUT_NEXT[cmd.statut] && (
                     <button onClick={() => nextStatut(cmd)} style={{
@@ -239,7 +243,7 @@ function CommandesTab() {
                   <button onClick={() => handleDelete(cmd)} style={{
                     padding: '7px 14px', borderRadius: 8, cursor: 'pointer',
                     background: 'rgba(192,57,43,0.08)', border: '1px solid rgba(192,57,43,0.2)',
-                    color: C.danger, fontSize: 12, fontWeight: 600,
+                    color: C.dangerDark, fontSize: 12, fontWeight: 600,
                   }}>🗑️ Supprimer</button>
                 </div>
               </div>
@@ -303,7 +307,7 @@ function AppelsTab() {
                   color: '#fff', fontSize: 13, fontWeight: 600,
                 }}>✅ Traité</button>
               )}
-              {appel.traite && <span style={{ fontSize: 12, color: C.success }}>✅ Traité</span>}
+              {appel.traite && <span style={{ fontSize: 12, color: C.successDark }}>✅ Traité</span>}
             </div>
           ))}
         </div>
@@ -374,14 +378,14 @@ function ProduitsTab() {
               <div>
                 <span style={{ fontWeight: 600, color: C.dark }}>{p.nom}</span>
                 {p.description && <p style={{ fontSize: 12, color: C.darkSoft, marginTop: 2 }}>{p.description}</p>}
-                <p style={{ fontSize: 13, color: C.gold, fontWeight: 700, marginTop: 4 }}>{p.prix} $</p>
+                <p style={{ fontSize: 13, color: C.goldDeep, fontWeight: 700, marginTop: 4 }}>{p.prix} $</p>
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <span style={{ fontSize: 12, padding: '3px 10px', borderRadius: 20, background: p.disponible ? 'rgba(30,132,73,0.10)' : 'rgba(192,57,43,0.10)', color: p.disponible ? C.success : C.danger }}>
                   {p.disponible ? '✅ Dispo' : '❌ Indispo'}
                 </span>
                 <button onClick={() => openEdit(p)} style={{ padding: '6px 12px', borderRadius: 8, border: `1px solid ${C.border}`, background: 'transparent', color: C.primary, cursor: 'pointer', fontSize: 12 }}>✏️</button>
-                <button onClick={() => handleDelete(p)} style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(192,57,43,0.2)', background: 'rgba(192,57,43,0.06)', color: C.danger, cursor: 'pointer', fontSize: 12 }}>🗑️</button>
+                <button onClick={() => handleDelete(p)} style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(192,57,43,0.2)', background: 'rgba(192,57,43,0.06)', color: C.dangerDark, cursor: 'pointer', fontSize: 12 }}>🗑️</button>
               </div>
             </div>
           ))}
@@ -395,13 +399,13 @@ function ProduitsTab() {
               {form.id ? '✏️ Modifier' : '+ Nouveau produit'}
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div><label style={{ fontSize: 11, fontWeight: 600, color: C.gold, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>Nom *</label>
+              <div><label style={{ fontSize: 11, fontWeight: 600, color: C.goldDeep, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>Nom *</label>
                 <input value={form.nom} onChange={e => setForm({ ...form, nom: e.target.value })} style={{ width: '100%', padding: '11px 14px', border: `1.5px solid ${C.border}`, borderRadius: 10, fontSize: 14, fontFamily: 'inherit' }} /></div>
-              <div><label style={{ fontSize: 11, fontWeight: 600, color: C.gold, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>Description</label>
+              <div><label style={{ fontSize: 11, fontWeight: 600, color: C.goldDeep, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>Description</label>
                 <textarea value={form.description || ''} onChange={e => setForm({ ...form, description: e.target.value })} rows={2} style={{ width: '100%', padding: '11px 14px', border: `1.5px solid ${C.border}`, borderRadius: 10, fontSize: 14, fontFamily: 'inherit', resize: 'vertical' }} /></div>
-              <div><label style={{ fontSize: 11, fontWeight: 600, color: C.gold, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>Prix ($) *</label>
+              <div><label style={{ fontSize: 11, fontWeight: 600, color: C.goldDeep, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>Prix ($) *</label>
                 <input type="number" step="0.01" value={form.prix} onChange={e => setForm({ ...form, prix: e.target.value })} style={{ width: '100%', padding: '11px 14px', border: `1.5px solid ${C.border}`, borderRadius: 10, fontSize: 14, fontFamily: 'inherit' }} /></div>
-              <div><label style={{ fontSize: 11, fontWeight: 600, color: C.gold, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>Catégorie</label>
+              <div><label style={{ fontSize: 11, fontWeight: 600, color: C.goldDeep, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>Catégorie</label>
                 <select value={form.categorie_id || ''} onChange={e => setForm({ ...form, categorie_id: e.target.value })} style={{ width: '100%', padding: '11px 14px', border: `1.5px solid ${C.border}`, borderRadius: 10, fontSize: 14, fontFamily: 'inherit', background: '#fff' }}>
                   <option value="">— Sans catégorie —</option>
                   {categories.map(c => <option key={c.id} value={c.id}>{c.nom}</option>)}
@@ -482,7 +486,7 @@ function CategoriesTab() {
               <span style={{ fontWeight: 600, color: C.dark }}>{c.emoji} {c.nom}</span>
               <div style={{ display: 'flex', gap: 8 }}>
                 <button onClick={() => openEdit(c)} style={{ padding: '6px 12px', borderRadius: 8, border: `1px solid ${C.border}`, background: 'transparent', color: C.primary, cursor: 'pointer', fontSize: 12 }}>✏️</button>
-                <button onClick={() => handleDelete(c)} style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(192,57,43,0.2)', background: 'rgba(192,57,43,0.06)', color: C.danger, cursor: 'pointer', fontSize: 12 }}>🗑️</button>
+                <button onClick={() => handleDelete(c)} style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(192,57,43,0.2)', background: 'rgba(192,57,43,0.06)', color: C.dangerDark, cursor: 'pointer', fontSize: 12 }}>🗑️</button>
               </div>
             </div>
           ))}
@@ -495,11 +499,11 @@ function CategoriesTab() {
               {form.id ? '✏️ Modifier' : '+ Nouvelle catégorie'}
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div><label style={{ fontSize: 11, fontWeight: 600, color: C.gold, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>Nom *</label>
+              <div><label style={{ fontSize: 11, fontWeight: 600, color: C.goldDeep, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>Nom *</label>
                 <input value={form.nom} onChange={e => setForm({ ...form, nom: e.target.value })} style={{ width: '100%', padding: '11px 14px', border: `1.5px solid ${C.border}`, borderRadius: 10, fontSize: 14, fontFamily: 'inherit' }} /></div>
-              <div><label style={{ fontSize: 11, fontWeight: 600, color: C.gold, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>Emoji</label>
+              <div><label style={{ fontSize: 11, fontWeight: 600, color: C.goldDeep, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>Emoji</label>
                 <input value={form.emoji || ''} onChange={e => setForm({ ...form, emoji: e.target.value })} placeholder="🍔" style={{ width: '100%', padding: '11px 14px', border: `1.5px solid ${C.border}`, borderRadius: 10, fontSize: 18, fontFamily: 'inherit' }} /></div>
-              <div><label style={{ fontSize: 11, fontWeight: 600, color: C.gold, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>Ordre d'affichage</label>
+              <div><label style={{ fontSize: 11, fontWeight: 600, color: C.goldDeep, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>Ordre d'affichage</label>
                 <input type="number" value={form.ordre || 0} onChange={e => setForm({ ...form, ordre: e.target.value })} style={{ width: '100%', padding: '11px 14px', border: `1.5px solid ${C.border}`, borderRadius: 10, fontSize: 14, fontFamily: 'inherit' }} /></div>
             </div>
             <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
@@ -601,8 +605,8 @@ function ParametresTab() {
         ⚙️ Paramètres du restaurant
       </h2>
 
-      {success && <div style={{ background: 'rgba(30,132,73,0.10)', border: '1px solid rgba(30,132,73,0.3)', borderRadius: 10, padding: '10px 16px', marginBottom: 16, color: C.success, fontSize: 13 }}>{success}</div>}
-      {error   && <div style={{ background: 'rgba(192,57,43,0.10)', border: '1px solid rgba(192,57,43,0.3)', borderRadius: 10, padding: '10px 16px', marginBottom: 16, color: C.danger, fontSize: 13 }}>⚠️ {error}</div>}
+      {success && <div style={{ background: 'rgba(30,132,73,0.10)', border: '1px solid rgba(30,132,73,0.3)', borderRadius: 10, padding: '10px 16px', marginBottom: 16, color: C.successDark, fontSize: 13 }}>{success}</div>}
+      {error   && <div style={{ background: 'rgba(192,57,43,0.10)', border: '1px solid rgba(192,57,43,0.3)', borderRadius: 10, padding: '10px 16px', marginBottom: 16, color: C.dangerDark, fontSize: 13 }}>⚠️ {error}</div>}
 
       {/* Logo */}
       <div style={cardStyle}>
@@ -617,7 +621,7 @@ function ParametresTab() {
               <input type="file" accept="image/*" onChange={handleFileChange} disabled={uploading} style={{ display: 'none' }} />
             </label>
             {preview && (
-              <button onClick={handleRemoveLogo} style={{ padding: '7px 14px', borderRadius: 8, border: '1px solid rgba(192,57,43,0.25)', background: 'rgba(192,57,43,0.07)', color: C.danger, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+              <button onClick={handleRemoveLogo} style={{ padding: '7px 14px', borderRadius: 8, border: '1px solid rgba(192,57,43,0.25)', background: 'rgba(192,57,43,0.07)', color: C.dangerDark, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
                 🗑️ Retirer
               </button>
             )}
@@ -641,16 +645,16 @@ function ParametresTab() {
         <h3 style={{ color: C.primary, marginBottom: 6, fontSize: 16, fontWeight: 700 }}>🔑 Modifier le mot de passe</h3>
         <p style={{ fontSize: 13, color: C.darkSoft, marginBottom: 16 }}>Choisissez un nouveau mot de passe pour votre compte admin.</p>
 
-        {pwdSuccess && <div style={{ background: 'rgba(30,132,73,0.10)', border: '1px solid rgba(30,132,73,0.3)', borderRadius: 10, padding: '10px 14px', marginBottom: 14, color: C.success, fontSize: 13 }}>{pwdSuccess}</div>}
-        {pwdError   && <div style={{ background: 'rgba(192,57,43,0.10)', border: '1px solid rgba(192,57,43,0.3)', borderRadius: 10, padding: '10px 14px', marginBottom: 14, color: C.danger, fontSize: 13 }}>⚠️ {pwdError}</div>}
+        {pwdSuccess && <div style={{ background: 'rgba(30,132,73,0.10)', border: '1px solid rgba(30,132,73,0.3)', borderRadius: 10, padding: '10px 14px', marginBottom: 14, color: C.successDark, fontSize: 13 }}>{pwdSuccess}</div>}
+        {pwdError   && <div style={{ background: 'rgba(192,57,43,0.10)', border: '1px solid rgba(192,57,43,0.3)', borderRadius: 10, padding: '10px 14px', marginBottom: 14, color: C.dangerDark, fontSize: 13 }}>⚠️ {pwdError}</div>}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div>
-            <label style={{ fontSize: 11, fontWeight: 600, color: C.gold, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>Nouveau mot de passe</label>
+            <label style={{ fontSize: 11, fontWeight: 600, color: C.goldDeep, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>Nouveau mot de passe</label>
             <input type="password" value={pwdForm.new1} onChange={e => setPwdForm({ ...pwdForm, new1: e.target.value })} style={inputStyle} placeholder="••••••••" />
           </div>
           <div>
-            <label style={{ fontSize: 11, fontWeight: 600, color: C.gold, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>Confirmer le nouveau mot de passe</label>
+            <label style={{ fontSize: 11, fontWeight: 600, color: C.goldDeep, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>Confirmer le nouveau mot de passe</label>
             <input type="password" value={pwdForm.new2} onChange={e => setPwdForm({ ...pwdForm, new2: e.target.value })} style={inputStyle} placeholder="••••••••" />
           </div>
           <button onClick={handleChangePassword} disabled={pwdLoading} style={{

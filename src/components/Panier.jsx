@@ -13,6 +13,8 @@ const C = {
   darkSoft:   'rgba(0,0,0,0.52)',
   border:     'rgba(201,169,110,0.20)',
   danger:     '#C0392B',
+  goldDeep:    '#896B33', // high-contrast accent for text on white/cream backgrounds
+  dangerDark:  '#C0392B', // high-contrast red for text on light backgrounds
 };
 
 const L = {
@@ -108,7 +110,7 @@ export default function Panier({ items, onUpdateQty, onRemove, onClose, onConfir
                 }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{ fontWeight: 600, color: C.dark, fontSize: 14, margin: 0 }}>{item.nom}</p>
-                    <p style={{ color: C.gold, fontSize: 13, fontWeight: 700, margin: '2px 0 0' }}>
+                    <p style={{ color: C.goldDeep, fontSize: 13, fontWeight: 700, margin: '2px 0 0' }}>
                       {(item.prix_unit * item.quantite).toFixed(2)} $
                     </p>
                   </div>
@@ -129,7 +131,7 @@ export default function Panier({ items, onUpdateQty, onRemove, onClose, onConfir
                     }}>+</button>
                     <button onClick={() => onRemove(idx)} style={{
                       width: 28, height: 28, borderRadius: '50%', border: '1px solid rgba(192,57,43,0.2)',
-                      background: 'rgba(192,57,43,0.07)', cursor: 'pointer', fontSize: 13, color: C.danger,
+                      background: 'rgba(192,57,43,0.07)', cursor: 'pointer', fontSize: 13, color: C.dangerDark,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>🗑</button>
                   </div>
@@ -142,7 +144,7 @@ export default function Panier({ items, onUpdateQty, onRemove, onClose, onConfir
                 padding: '16px 0 20px', borderTop: `2px solid ${C.gold}`, marginTop: 4,
               }}>
                 <span style={{ fontWeight: 700, color: C.dark, fontSize: 16 }}>{L.total}</span>
-                <span style={{ fontWeight: 800, color: C.gold, fontSize: 20 }}>{total.toFixed(2)} $</span>
+                <span style={{ fontWeight: 800, color: C.goldDeep, fontSize: 20 }}>{total.toFixed(2)} $</span>
               </div>
             </div>
           )}
@@ -151,7 +153,7 @@ export default function Panier({ items, onUpdateQty, onRemove, onClose, onConfir
           {items.length > 0 && (
             <div style={{ paddingBottom: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
-                <label style={{ fontSize: 11, fontWeight: 600, color: C.gold, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>{L.table}</label>
+                <label style={{ fontSize: 11, fontWeight: 600, color: C.goldDeep, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>{L.table}</label>
                 <input
                   value={table}
                   onChange={e => { setTable(e.target.value); setError(''); }}
@@ -161,7 +163,7 @@ export default function Panier({ items, onUpdateQty, onRemove, onClose, onConfir
                 />
               </div>
               <div>
-                <label style={{ fontSize: 11, fontWeight: 600, color: C.gold, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>{L.demandes}</label>
+                <label style={{ fontSize: 11, fontWeight: 600, color: C.goldDeep, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 6 }}>{L.demandes}</label>
                 <textarea
                   value={demandes}
                   onChange={e => setDemandes(e.target.value)}
@@ -171,7 +173,7 @@ export default function Panier({ items, onUpdateQty, onRemove, onClose, onConfir
                 />
               </div>
               {error && (
-                <div style={{ background: 'rgba(192,57,43,0.08)', border: '1px solid rgba(192,57,43,0.25)', borderRadius: 8, padding: '10px 14px', color: C.danger, fontSize: 13 }}>
+                <div style={{ background: 'rgba(192,57,43,0.08)', border: '1px solid rgba(192,57,43,0.25)', borderRadius: 8, padding: '10px 14px', color: C.dangerDark, fontSize: 13 }}>
                   ⚠️ {error}
                 </div>
               )}
