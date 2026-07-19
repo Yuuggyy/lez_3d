@@ -220,16 +220,16 @@ function CommandesTab() {
                       {STATUT_LABELS[cmd.statut]}
                     </span>
                   </div>
-                  <span style={{ fontSize: 18, fontWeight: 800, color: C.goldDeep }}>{cmd.total?.toFixed(2)} $</span>
+                  <span style={{ fontSize: 18, fontWeight: 800, color: C.goldDeep }}>{cmd.montant_total?.toFixed(2)} $</span>
                 </div>
-                {cmd.items && (
+                {cmd.commande_items && cmd.commande_items.length > 0 && (
                   <div style={{ fontSize: 13, color: C.darkSoft, lineHeight: 1.6 }}>
-                    {(typeof cmd.items === 'string' ? JSON.parse(cmd.items) : cmd.items).map((it, i) => (
-                      <span key={i}>{it.quantite}× {it.nom}{i < cmd.items.length - 1 ? ' · ' : ''}</span>
+                    {cmd.commande_items.map((it, i) => (
+                      <span key={i}>{it.quantite}× {it.nom_produit}{i < cmd.commande_items.length - 1 ? ' · ' : ''}</span>
                     ))}
                   </div>
                 )}
-                {cmd.notes && <p style={{ fontSize: 13, color: C.warningDark, fontStyle: 'italic' }}>💬 {cmd.notes}</p>}
+                {cmd.demandes_speciales && <p style={{ fontSize: 13, color: C.warningDark, fontStyle: 'italic' }}>💬 {cmd.demandes_speciales}</p>}
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   {STATUT_NEXT[cmd.statut] && (
                     <button onClick={() => nextStatut(cmd)} style={{
