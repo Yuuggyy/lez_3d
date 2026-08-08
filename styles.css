@@ -1,11 +1,11 @@
 :root {
-  --brand-primary: #1A1A2E;
-  --brand-primary-mid: #2D2D4F;
-  --brand-gold: #E94560;
-  --brand-gold-light: #FF6B82;
+  --brand-primary: #0D0D1A;
+  --brand-primary-mid: #1A1A2E;
+  --brand-gold: #F0C040;
+  --brand-gold-light: #FFD960;
   --brand-beige: #F0F0F5;
   --brand-cream: #F8F8FF;
-  --brand-dark: #0D0D1A;
+  --brand-dark: #08080F;
   --brand-dark-soft: rgba(26,26,0,0.55);
   --brand-border: rgba(200,184,0,0.22);
   --danger: #C0392B;
