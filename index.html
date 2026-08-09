@@ -174,8 +174,8 @@ function injectAddButtons(){
   });
 }
 function updateUI(cur){if(!pageFlip)return;if(cur===undefined)cur=pageFlip.getCurrentPageIndex();var dots=document.querySelectorAll(".nav-dot");if(dots.length>0){dots.forEach(function(d,i){d.classList.toggle("active",i===cur)});}document.getElementById("pageIndicator").textContent="Page "+(cur+1)+" / "+totalPages;document.getElementById("prevBtn").disabled=cur===0;document.getElementById("nextBtn").disabled=cur===totalPages-1;}
-document.getElementById("prevBtn").addEventListener("click",function(){if(pageFlip&&Date.now()-lastFlipTime>400){var c=pageFlip.getCurrentPageIndex();if(c>0)pageFlip.flip(c-1);lastFlipTime=Date.now()}});
-document.getElementById("nextBtn").addEventListener("click",function(){if(pageFlip&&Date.now()-lastFlipTime>400){var c=pageFlip.getCurrentPageIndex();if(c<totalPages-1)pageFlip.flip(c+1);lastFlipTime=Date.now()}});
+document.getElementById("prevBtn").addEventListener("click",function(){if(pageFlip&&Date.now()-lastFlipTime>400){var c=pageFlip.getCurrentPageIndex();if(c>0)pageFlip.flipPrev();lastFlipTime=Date.now()}});
+document.getElementById("nextBtn").addEventListener("click",function(){if(pageFlip&&Date.now()-lastFlipTime>400){var c=pageFlip.getCurrentPageIndex();if(c<totalPages-1)pageFlip.flipNext();lastFlipTime=Date.now()}});
 
 // CART FUNCTIONS
 function addToCart(name,price){
