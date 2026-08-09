@@ -63,12 +63,12 @@ body{font-family:'Inter',sans-serif;display:flex;flex-direction:column;align-ite
     <div class="page-item" data-density="hard"><div class="page-cover"><div class="shimmer"></div><h1>Lez Restaurant</h1><div class="ornament"></div><p class="subtitle">Menu</p><p class="subtitle" style="margin-top:15px;font-size:11px;letter-spacing:3px">Kinshasa</p></div></div>
     <div class="page-item"><div class="page-menu"><h2>Plats</h2><div class="category-line"></div><div class="menu-item"><div class="menu-item-info"><h3>Riz au poulet</h3><p></p></div><div class="menu-item-price">10$</div></div><div class="menu-item"><div class="menu-item-info"><h3>Pondu</h3><p></p></div><div class="menu-item-price">8$</div></div><div class="menu-item"><div class="menu-item-info"><h3>Fufu gombo</h3><p></p></div><div class="menu-item-price">8$</div></div></div></div>
     <div class="page-item"><div class="page-menu"><h2>Grillades</h2><div class="category-line"></div><div class="menu-item"><div class="menu-item-info"><h3>Poulet braisé</h3><p></p></div><div class="menu-item-price">12$</div></div><div class="menu-item"><div class="menu-item-info"><h3>Poisson braisé</h3><p></p></div><div class="menu-item-price">11$</div></div></div></div>
-    <div class="page-item" data-density="hard"><div class="page-contact"><h2>Contactez-nous</h2><div class="contact-info">📍 Immeuble Matrix, 8ème étage, 119 Boulevard du 30 Juin, Gombe, Kinshasa<br>📞 +243 828 664 628<br>🕐 Lun - Dim : 11h - 23h</div><button class="call-button" onclick="window.location.href='tel:243828664628'">Appeler</button></div></div>
+    <div class="page-item" data-density="hard"><div class="page-contact"><h2>Contactez-nous</h2><div class="contact-info">📍 Immeuble Matrix, 8ème étage, 119 Boulevard du 30 Juin, Gombe, Kinshasa<br>📞 +243 828 664 628<br>🕐 Lun - Dim : 11h - 23h</div><button class="call-button" onclick="event.stopPropagation();event.preventDefault();window.location.href='tel:243828664628'">Appeler</button></div></div>
   </div>
 </div>
 <div class="page-indicator" id="pageIndicator" style="display:none">Page 1 / 4</div>
 <div class="controls" style="display:none"><button class="control-btn" id="prevBtn">&#8249;</button><button class="control-btn" id="nextBtn">&#8250;</button></div>
-<div class="swipe-hint" id="swipeHint" style="display:none">&#8592; glissez &#8594;</div>
+<div class="swipe-hint" id="swipeHint" style="display:none">tappez ou glissez</div>
 <script>/**
  * Skipped minification because the original files appears to be already minified.
  * Original file: /npm/page-flip@2.0.7/dist/js/page-flip.browser.js
@@ -83,7 +83,7 @@ var totalPages=4;
 function initBook(){
   if(typeof St==="undefined"||!St.PageFlip){setTimeout(initBook,100);return;}
   var bookEl=document.getElementById("book");
-  pageFlip=new St.PageFlip(bookEl,{width:380,height:520,size:"stretch",minWidth:280,maxWidth:400,minHeight:400,maxHeight:600,drawShadow:true,flippingTime:700,usePortrait:true,startZIndex:0,autoSize:true,maxShadowOpacity:0.6,showCover:true,mobileScrollSupport:true,swipeDistance:25,clickEventForward:true,useMouseEvents:true,disableFlipByClick:false});
+  pageFlip=new St.PageFlip(bookEl,{width:380,height:520,size:"stretch",minWidth:280,maxWidth:400,minHeight:400,maxHeight:600,drawShadow:true,flippingTime:700,usePortrait:true,startZIndex:0,autoSize:true,maxShadowOpacity:0.6,showCover:true,mobileScrollSupport:false,swipeDistance:25,clickEventForward:false,useMouseEvents:true,disableFlipByClick:false});
   pageFlip.loadFromHTML(document.querySelectorAll(".page-item"));
   document.getElementById("loadingMsg").style.display="none";
   document.getElementById("book-container").style.display="flex";
@@ -100,6 +100,25 @@ function initBook(){
 function updateUI(cur){if(!pageFlip)return;if(cur===undefined)cur=pageFlip.getCurrentPageIndex();var dots=document.querySelectorAll(".nav-dot");if(dots.length>0){dots.forEach(function(d,i){d.classList.toggle("active",i===cur)});}document.getElementById("pageIndicator").textContent="Page "+(cur+1)+" / "+totalPages;document.getElementById("prevBtn").disabled=cur===0;document.getElementById("nextBtn").disabled=cur===totalPages-1;}
 document.getElementById("prevBtn").addEventListener("click",function(){if(pageFlip)pageFlip.flipPrev()});
 document.getElementById("nextBtn").addEventListener("click",function(){if(pageFlip)pageFlip.flipNext()});
+// Tap-to-flip: tap right side = next, left side = prev (works alongside swipe)
+var bookContainer=document.getElementById("book-container");
+var touchStartX=0,touchStartY=0,touchStartTime=0,touchMoved=false;
+bookContainer.addEventListener("touchstart",function(e){touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;touchStartTime=Date.now();touchMoved=false;},{passive:true});
+bookContainer.addEventListener("touchmove",function(e){touchMoved=true;},{passive:true});
+bookContainer.addEventListener("touchend",function(e){
+  if(!pageFlip)return;
+  var dt=Date.now()-touchStartTime;
+  var dx=Math.abs(e.changedTouches[0].clientX-touchStartX);
+  var dy=Math.abs(e.changedTouches[0].clientY-touchStartY);
+  // Only handle as tap if quick and minimal movement (not a swipe)
+  if(dt<300&&dx<10&&dy<10&&!touchMoved){
+    var rect=bookContainer.getBoundingClientRect();
+    var tapX=e.changedTouches[0].clientX-rect.left;
+    var cur=pageFlip.getCurrentPageIndex();
+    if(tapX>rect.width*0.5&&cur<totalPages-1){pageFlip.flipNext();}
+    else if(tapX<rect.width*0.5&&cur>0){pageFlip.flipPrev();}
+  }
+},{passive:true});
 initBook();
 var c=document.getElementById("particles");var cx=c.getContext("2d");var ps=[];
 function ip(){c.width=innerWidth;c.height=innerHeight;ps=[];for(var i=0;i<Math.min(50,Math.floor(innerWidth/25));i++){ps.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*2+0.5,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,o:Math.random()*0.5+0.1})}}
