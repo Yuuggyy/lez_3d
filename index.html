@@ -80,10 +80,12 @@ body{font-family:'Inter',sans-serif;display:flex;flex-direction:column;align-ite
 <script>
 var pageFlip=null;
 var totalPages=4;
+var isFlipping=false;
+var flipLockUntil=0;
 function initBook(){
   if(typeof St==="undefined"||!St.PageFlip){setTimeout(initBook,100);return;}
   var bookEl=document.getElementById("book");
-  pageFlip=new St.PageFlip(bookEl,{width:380,height:520,size:"stretch",minWidth:280,maxWidth:400,minHeight:400,maxHeight:600,drawShadow:true,flippingTime:700,usePortrait:true,startZIndex:0,autoSize:true,maxShadowOpacity:0.6,showCover:true,mobileScrollSupport:false,swipeDistance:25,clickEventForward:false,useMouseEvents:true,disableFlipByClick:false});
+  pageFlip=new St.PageFlip(bookEl,{width:380,height:520,size:"stretch",minWidth:280,maxWidth:400,minHeight:400,maxHeight:600,drawShadow:true,flippingTime:500,usePortrait:true,startZIndex:0,autoSize:true,maxShadowOpacity:0.6,showCover:true,mobileScrollSupport:false,swipeDistance:50,clickEventForward:false,useMouseEvents:true,disableFlipByClick:true});
   pageFlip.loadFromHTML(document.querySelectorAll(".page-item"));
   document.getElementById("loadingMsg").style.display="none";
   document.getElementById("book-container").style.display="flex";
@@ -92,29 +94,41 @@ function initBook(){
   document.getElementById("swipeHint").style.display="block";
   var navDots=document.getElementById("navDots");
   navDots.innerHTML="";
-  if(totalPages<=12){for(var i=0;i<totalPages;i++){var d=document.createElement("div");d.className="nav-dot"+(i===0?" active":"");(function(idx){d.onclick=function(){if(pageFlip)pageFlip.flip(idx)}})(i);navDots.appendChild(d);}}else{navDots.innerHTML='<span style="color:var(--gold-light);font-size:11px;opacity:0.7">'+totalPages+' pages</span>';}
+  if(totalPages<=12){for(var i=0;i<totalPages;i++){var d=document.createElement("div");d.className="nav-dot"+(i===0?" active":"");(function(idx){d.onclick=function(){if(pageFlip&&!isFlipping)pageFlip.flip(idx)}})(i);navDots.appendChild(d);}}else{navDots.innerHTML='<span style="color:var(--gold-light);font-size:11px;opacity:0.7">'+totalPages+' pages</span>';}
   pageFlip.on("flip",function(e){updateUI(e.data)});
-  pageFlip.on("changeState",function(e){if(e.data==="read")updateUI()});
+  pageFlip.on("changeState",function(e){
+    if(e.data==="flipping"){isFlipping=true;}
+    else if(e.data==="read"){isFlipping=false;flipLockUntil=Date.now()+150;updateUI();}
+  });
   updateUI();
 }
 function updateUI(cur){if(!pageFlip)return;if(cur===undefined)cur=pageFlip.getCurrentPageIndex();var dots=document.querySelectorAll(".nav-dot");if(dots.length>0){dots.forEach(function(d,i){d.classList.toggle("active",i===cur)});}document.getElementById("pageIndicator").textContent="Page "+(cur+1)+" / "+totalPages;document.getElementById("prevBtn").disabled=cur===0;document.getElementById("nextBtn").disabled=cur===totalPages-1;}
-document.getElementById("prevBtn").addEventListener("click",function(){if(pageFlip)pageFlip.flipPrev()});
-document.getElementById("nextBtn").addEventListener("click",function(){if(pageFlip)pageFlip.flipNext()});
-// Tap-to-flip: tap right side = next, left side = prev (works alongside swipe)
+document.getElementById("prevBtn").addEventListener("click",function(){if(pageFlip&&!isFlipping)pageFlip.flipPrev()});
+document.getElementById("nextBtn").addEventListener("click",function(){if(pageFlip&&!isFlipping)pageFlip.flipNext()});
+// Swipe-to-flip with flip lock for stable behavior
 var bookContainer=document.getElementById("book-container");
 var touchStartX=0,touchStartY=0,touchStartTime=0,touchMoved=false;
 bookContainer.addEventListener("touchstart",function(e){touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;touchStartTime=Date.now();touchMoved=false;},{passive:true});
 bookContainer.addEventListener("touchmove",function(e){touchMoved=true;},{passive:true});
 bookContainer.addEventListener("touchend",function(e){
   if(!pageFlip)return;
+  // Block if a flip is in progress or in cooldown
+  if(isFlipping||Date.now()<flipLockUntil)return;
   var dt=Date.now()-touchStartTime;
-  var dx=Math.abs(e.changedTouches[0].clientX-touchStartX);
-  var dy=Math.abs(e.changedTouches[0].clientY-touchStartY);
-  // Only handle as tap if quick and minimal movement (not a swipe)
-  if(dt<300&&dx<10&&dy<10&&!touchMoved){
+  var dx=e.changedTouches[0].clientX-touchStartX;
+  var dy=e.changedTouches[0].clientY-touchStartY;
+  var adx=Math.abs(dx);
+  var ady=Math.abs(dy);
+  var cur=pageFlip.getCurrentPageIndex();
+  // Swipe detection: horizontal movement > vertical and > 40px
+  if(adx>40&&adx>ady){
+    if(dx<0&&cur<totalPages-1){pageFlip.flipNext();}
+    else if(dx>0&&cur>0){pageFlip.flipPrev();}
+  }
+  // Tap detection: quick touch with minimal movement
+  else if(dt<300&&adx<10&&ady<10&&!touchMoved){
     var rect=bookContainer.getBoundingClientRect();
     var tapX=e.changedTouches[0].clientX-rect.left;
-    var cur=pageFlip.getCurrentPageIndex();
     if(tapX>rect.width*0.5&&cur<totalPages-1){pageFlip.flipNext();}
     else if(tapX<rect.width*0.5&&cur>0){pageFlip.flipPrev();}
   }
