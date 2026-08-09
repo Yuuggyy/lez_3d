@@ -134,7 +134,7 @@ var cart=[];
 function initBook(){
   if(typeof St==="undefined"||!St.PageFlip){setTimeout(initBook,100);return;}
   var bookEl=document.getElementById("book");
-  pageFlip=new St.PageFlip(bookEl,{width:380,height:520,size:"stretch",minWidth:280,maxWidth:400,minHeight:400,maxHeight:600,drawShadow:true,flippingTime:500,usePortrait:true,startZIndex:0,autoSize:true,maxShadowOpacity:0.6,showCover:true,mobileScrollSupport:false,swipeDistance:50,clickEventForward:false,useMouseEvents:true,disableFlipByClick:true});
+  pageFlip=new St.PageFlip(bookEl,{width:380,height:520,size:"stretch",minWidth:280,maxWidth:400,minHeight:400,maxHeight:600,drawShadow:true,flippingTime:500,usePortrait:true,startZIndex:0,autoSize:true,maxShadowOpacity:0.6,showCover:true,mobileScrollSupport:false,swipeDistance:50,clickEventForward:false,useMouseEvents:true,disableFlipByClick:false});
   pageFlip.loadFromHTML(document.querySelectorAll(".page-item"));
   document.getElementById("loadingMsg").style.display="none";
   document.getElementById("book-container").style.display="flex";
