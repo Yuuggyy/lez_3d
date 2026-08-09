@@ -92,12 +92,12 @@ function initBook(){
   document.getElementById("swipeHint").style.display="block";
   var navDots=document.getElementById("navDots");
   navDots.innerHTML="";
-  for(var i=0;i<totalPages;i++){var d=document.createElement("div");d.className="nav-dot"+(i===0?" active":"");(function(idx){d.onclick=function(){if(pageFlip)pageFlip.flip(idx)}})(i);navDots.appendChild(d);}
+  if(totalPages<=12){for(var i=0;i<totalPages;i++){var d=document.createElement("div");d.className="nav-dot"+(i===0?" active":"");(function(idx){d.onclick=function(){if(pageFlip)pageFlip.flip(idx)}})(i);navDots.appendChild(d);}}else{navDots.innerHTML='<span style="color:var(--gold-light);font-size:11px;opacity:0.7">'+totalPages+' pages</span>';}
   pageFlip.on("flip",function(e){updateUI(e.data)});
   pageFlip.on("changeState",function(e){if(e.data==="read")updateUI()});
   updateUI();
 }
-function updateUI(cur){if(!pageFlip)return;if(cur===undefined)cur=pageFlip.getCurrentPageIndex();document.querySelectorAll(".nav-dot").forEach(function(d,i){d.classList.toggle("active",i===cur)});document.getElementById("pageIndicator").textContent="Page "+(cur+1)+" / "+totalPages;document.getElementById("prevBtn").disabled=cur===0;document.getElementById("nextBtn").disabled=cur===totalPages-1;}
+function updateUI(cur){if(!pageFlip)return;if(cur===undefined)cur=pageFlip.getCurrentPageIndex();var dots=document.querySelectorAll(".nav-dot");if(dots.length>0){dots.forEach(function(d,i){d.classList.toggle("active",i===cur)});}document.getElementById("pageIndicator").textContent="Page "+(cur+1)+" / "+totalPages;document.getElementById("prevBtn").disabled=cur===0;document.getElementById("nextBtn").disabled=cur===totalPages-1;}
 document.getElementById("prevBtn").addEventListener("click",function(){if(pageFlip)pageFlip.flipPrev()});
 document.getElementById("nextBtn").addEventListener("click",function(){if(pageFlip)pageFlip.flipNext()});
 initBook();
