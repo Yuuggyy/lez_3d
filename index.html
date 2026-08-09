@@ -93,14 +93,14 @@ function initBook(){
   document.getElementById("swipeHint").style.display="block";
   var navDots=document.getElementById("navDots");
   navDots.innerHTML="";
-  if(totalPages<=12){for(var i=0;i<totalPages;i++){var d=document.createElement("div");d.className="nav-dot"+(i===0?" active":"");(function(idx){d.onclick=function(){if(pageFlip)pageFlip.flip(idx)}})(i);navDots.appendChild(d);}}else{navDots.innerHTML='<span style="color:var(--gold-light);font-size:11px;opacity:0.7">'+totalPages+' pages</span>';}
+  if(totalPages<=12){for(var i=0;i<totalPages;i++){var d=document.createElement("div");d.className="nav-dot"+(i===0?" active":"");(function(idx){d.onclick=function(){if(pageFlip&&Date.now()-lastFlipTime>400){pageFlip.flip(idx);lastFlipTime=Date.now()}}})(i);navDots.appendChild(d);}}else{navDots.innerHTML='<span style="color:var(--gold-light);font-size:11px;opacity:0.7">'+totalPages+' pages</span>';}
   pageFlip.on("flip",function(e){updateUI(e.data)});
   pageFlip.on("changeState",function(e){if(e.data==="read")updateUI()});
   updateUI();
 }
 function updateUI(cur){if(!pageFlip)return;if(cur===undefined)cur=pageFlip.getCurrentPageIndex();var dots=document.querySelectorAll(".nav-dot");if(dots.length>0){dots.forEach(function(d,i){d.classList.toggle("active",i===cur)});}document.getElementById("pageIndicator").textContent="Page "+(cur+1)+" / "+totalPages;document.getElementById("prevBtn").disabled=cur===0;document.getElementById("nextBtn").disabled=cur===totalPages-1;}
-document.getElementById("prevBtn").addEventListener("click",function(){if(pageFlip&&Date.now()-lastFlipTime>400){pageFlip.flipPrev();lastFlipTime=Date.now()}});
-document.getElementById("nextBtn").addEventListener("click",function(){if(pageFlip&&Date.now()-lastFlipTime>400){pageFlip.flipNext();lastFlipTime=Date.now()}});
+document.getElementById("prevBtn").addEventListener("click",function(){if(pageFlip&&Date.now()-lastFlipTime>400){var c=pageFlip.getCurrentPageIndex();if(c>0)pageFlip.flip(c-1);lastFlipTime=Date.now()}});
+document.getElementById("nextBtn").addEventListener("click",function(){if(pageFlip&&Date.now()-lastFlipTime>400){var c=pageFlip.getCurrentPageIndex();if(c<totalPages-1)pageFlip.flip(c+1);lastFlipTime=Date.now()}});
 // Swipe-to-flip with flip lock for stable behavior
 var bookContainer=document.getElementById("book-container");
 var touchStartX=0,touchStartY=0,touchStartTime=0,touchMoved=false;
@@ -117,15 +117,15 @@ bookContainer.addEventListener("touchend",function(e){
   var cur=pageFlip.getCurrentPageIndex();
   // Swipe: horizontal movement > vertical and > 40px
   if(adx>40&&adx>ady){
-    if(dx<0&&cur<totalPages-1){pageFlip.flipNext();lastFlipTime=Date.now();}
-    else if(dx>0&&cur>0){pageFlip.flipPrev();lastFlipTime=Date.now();}
+    if(dx<0&&cur<totalPages-1){pageFlip.flip(cur+1);lastFlipTime=Date.now();}
+    else if(dx>0&&cur>0){pageFlip.flip(cur-1);lastFlipTime=Date.now();}
   }
   // Tap: quick touch with minimal movement
   else if(dt<300&&adx<15&&ady<15&&!touchMoved){
     var rect=bookContainer.getBoundingClientRect();
     var tapX=e.changedTouches[0].clientX-rect.left;
-    if(tapX>rect.width*0.5&&cur<totalPages-1){pageFlip.flipNext();lastFlipTime=Date.now();}
-    else if(tapX<rect.width*0.5&&cur>0){pageFlip.flipPrev();lastFlipTime=Date.now();}
+    if(tapX>rect.width*0.5&&cur<totalPages-1){pageFlip.flip(cur+1);lastFlipTime=Date.now();}
+    else if(tapX<rect.width*0.5&&cur>0){pageFlip.flip(cur-1);lastFlipTime=Date.now();}
   }
 },{passive:true});
 initBook();
